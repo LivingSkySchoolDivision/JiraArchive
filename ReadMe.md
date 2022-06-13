@@ -57,7 +57,7 @@ This web application is designed to run with OAuth / OpenID Connect as an authen
 | Configuration Variable | Description | Example |
 |------------------------|-------------|---------|
 | `ConnectionStrings:JiraDB` | Connection string to a Jira database (MS SQL). | `data source=databaseserver.hostname.or.ip\SQLINSTANCENAME;initial catalog=JiraServiceDesk;user id=USERNAME;password=PASSWORD;Trusted_Connection=false` |
-| `OIDC:Authority` | The issuing authority for the OpenID Connect connection. | `https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000` |
+| `OIDC:Authority` | The issuing authority for the OpenID Connect connection. The GUID should be your AzureAD tenant ID. | `https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000` |
 | `OIDC:ClientID` | The ClientID for the OpenID Connect connection. If using AzureAD, this is the __Application ID__ of your _Enterprise Application_ you've set up for the OIDC connection. | `00000000-0000-0000-0000-000000000000` |
 | `OIDC:ClientSecret` | A valid client secret from your OIDC server. | _A random string_ |
 
