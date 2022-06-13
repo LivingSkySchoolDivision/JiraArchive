@@ -21,6 +21,9 @@ public class JiraIssueSearcher
         // Do nothing if there are no search terms
         if (string.IsNullOrEmpty(rawTerms.Trim())) { return new List<SearchResult>(); }
 
+        // Don't allow searches of less than 3 characters
+        if(rawTerms.Trim().Length < 3) { return new List<SearchResult>(); }
+
         List<SearchResult> results = new List<SearchResult>();
 
         // Split the search terms

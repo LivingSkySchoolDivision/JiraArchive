@@ -110,31 +110,34 @@ public class JiraIssueCommentRepository
     {
         Dictionary<int,List<JiraIssueComment>> returnMe = new Dictionary<int,List<JiraIssueComment>>();
 
-        using (SqlConnection connection = new SqlConnection(_connString))
+        if (IssueIDs.Count > 0)
         {
-            using (SqlCommand sqlCommand = new SqlCommand())
+            using (SqlConnection connection = new SqlConnection(_connString))
             {
-                sqlCommand.Connection = connection;
-                sqlCommand.CommandType = CommandType.Text;
-                sqlCommand.CommandText = "SELECT ID,issueid,AUTHOR,actiontype,actionbody,CREATED,UPDATED FROM jiraaction WHERE issueid IN (" + IssueIDs.ToCommaSeparatedString() + ") ORDER BY CREATED";
-                sqlCommand.Connection.Open();
-                SqlDataReader dataReader = sqlCommand.ExecuteReader();
-                if (dataReader.HasRows)
+                using (SqlCommand sqlCommand = new SqlCommand())
                 {
-                    while (dataReader.Read())
+                    sqlCommand.Connection = connection;
+                    sqlCommand.CommandType = CommandType.Text;
+                    sqlCommand.CommandText = "SELECT ID,issueid,AUTHOR,actiontype,actionbody,CREATED,UPDATED FROM jiraaction WHERE issueid IN (" + IssueIDs.ToCommaSeparatedString() + ") ORDER BY CREATED";
+                    sqlCommand.Connection.Open();
+                    SqlDataReader dataReader = sqlCommand.ExecuteReader();
+                    if (dataReader.HasRows)
                     {
-                        JiraIssueComment x = dataReaderToObject(dataReader);
-                        if (x != null)
+                        while (dataReader.Read())
                         {
-                            if (!returnMe.ContainsKey(x.IssueId))
+                            JiraIssueComment x = dataReaderToObject(dataReader);
+                            if (x != null)
                             {
-                                returnMe.Add(x.IssueId, new List<JiraIssueComment>());
+                                if (!returnMe.ContainsKey(x.IssueId))
+                                {
+                                    returnMe.Add(x.IssueId, new List<JiraIssueComment>());
+                                }
+                                returnMe[x.IssueId].Add(x);
                             }
-                            returnMe[x.IssueId].Add(x);
                         }
                     }
+                    sqlCommand.Connection.Close();
                 }
-                sqlCommand.Connection.Close();
             }
         }
 

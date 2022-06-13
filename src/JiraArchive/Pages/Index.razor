@@ -9,10 +9,11 @@
     JiraIssueSearcher _searcher { get; set; }
 
     private SearchInput userSearchInput = new SearchInput();
-    private bool showLoading = false;
+    private bool showResultCount = false;
 
     protected void doSearch()
     {
+        showResultCount = true;
         userSearchInput.Results = _searcher.Find(userSearchInput.RawSearchTerms);
     }
 }
@@ -25,11 +26,11 @@
     body, html {  }
     .search-result { padding: 10px; border-radius: 5px; margin: 10px; margin-bottom: 25px; border-top: 2px dashed #C0C0C0; }
     .search-result-container { padding: 10px;  }
-    .search-result-issue-body { font-size: 12px; margin: 15px; white-space: pre-wrap; padding: 10px; border-left: 1px solid #C0C0C0; }
+    .search-result-issue-body { font-size: 12px; margin: 15px; white-space: pre-wrap; padding: 10px; border-left: 2px solid #C0C0C0;background: #F5F5F5; }
     .search-result-title { font-weight: bold; font-size: 110%; }
     .search-result-meta-container { font-size: 65%; margin-left: 5px; }
     .search-result-comment-title { font-size: 75%; font-weight: bold; margin-left: 10px; border-bottom: 1px dashed #C0C0C0; margin-bottom: 5px;  }
-    .search-result-comment { margin-left: 15px;   padding: 8px; font-size: 65%; margin-bottom: 10px; background-color: #F0F0F0;  border-left: 2px solid #C0C0C0; }
+    .search-result-comment { margin-left: 15px;   padding: 8px; font-size: 65%; margin-bottom: 10px; border: 1px solid #F0F0F0; background: #F5F5F5; border-left: 2px dashed #C0C0C0; }
     .search-result-author { font-weight: bold; }
     .search-result-comment-container {  max- }
     .search-result-content { white-space: pre-wrap; }
@@ -43,6 +44,7 @@
         <li>Upper or lower case do not matter.</li>
         <li>Have some patience while the system searches. There is a lot of text to search, and results may take a minute or two to show up.</li>
         <li>Use CTRL+F in your browser to search within your search results.</li>
+        <li>Don't search for less than 3 characters - it won't work.</li>
     </ul>
 
 </p>
@@ -53,14 +55,17 @@
         <InputText id="resourceName" class="form-control col-sm-8" @bind-Value="@userSearchInput.RawSearchTerms"></InputText>
     </EditForm>
 
-    @if(showLoading){<div>LOADING...</div>}
+    <br/>
+    <hr noshade>
+    <br/>
+
+    @if(showResultCount)
+    {
+        <i>Found: @(userSearchInput.Results.Count)</i>
+    }
 
     @if(userSearchInput.Results.Count > 0)
     {
-        <br/>
-        <hr noshade>
-        <br/>
-        <i>Found: @(userSearchInput.Results.Count)</i>
         <br/>
         <div class="search-result-container">
             @foreach(SearchResult result in userSearchInput.Results)
