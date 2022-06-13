@@ -2,10 +2,20 @@
 
 <PageTitle>Jira Archive</PageTitle>
 
+
 <div class="page">
     <main>
         <article class="content px-4">
-            @Body
+<AuthorizeView>
+    <Authorized>
+        <div>@Body</div>
+    </Authorized>
+    <NotAuthorized>
+        <div>
+            <a href="Account/Login">Log in</a>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
         </article>
     </main>
 </div>

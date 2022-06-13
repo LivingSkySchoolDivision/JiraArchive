@@ -16,6 +16,11 @@
         userSearchInput.Results = _searcher.Find(userSearchInput.RawSearchTerms);
     }
 }
+
+
+<AuthorizeView>
+    <Authorized Context="Auth">
+
 <style type="text/css">
     body, html {  }
     .search-result { padding: 10px; border-radius: 5px; margin: 10px; margin-bottom: 25px; border-top: 2px dashed #C0C0C0; }
@@ -102,3 +107,9 @@
         </div>
     }
 </div>
+
+    </Authorized>
+    <NotAuthorized>
+        <WebFrontend.Components.LogInComponent />
+    </NotAuthorized>
+</AuthorizeView>
