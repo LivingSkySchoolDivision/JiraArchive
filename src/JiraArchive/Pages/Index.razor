@@ -10,14 +10,25 @@
 
     private SearchInput userSearchInput = new SearchInput();
     private bool showResultCount = false;
+    private bool busySearching = false;
 
-    protected void doSearch()
+
+    protected void loadSearchResults()
     {
-        showResultCount = true;
         userSearchInput.Results = _searcher.Find(userSearchInput.RawSearchTerms);
+        busySearching = false;
+    }
+
+    protected async void doSearch()
+    {
+        // Show the results count if the user has searched at least once
+        showResultCount = true;
+        busySearching = true;
+        await Task.Run(loadSearchResults);
+        StateHasChanged();
+
     }
 }
-
 
 <AuthorizeView>
     <Authorized Context="Auth">
@@ -38,7 +49,6 @@
 
 <h1>Jira Issue Archive</h1>
 <p style="font-size: 75%;">
-    For best results:
     <ul style="font-size: 75%;">
         <li>Separate search terms with spaces, commas, or semicolens.</li>
         <li>Upper or lower case do not matter.</li>
@@ -59,58 +69,67 @@
     <hr noshade>
     <br/>
 
-    @if(showResultCount)
+
+
+
+    @if(busySearching)
     {
-        <i>Found: @(userSearchInput.Results.Count)</i>
-    }
-
-    @if(userSearchInput.Results.Count > 0)
-    {
-        <br/>
-        <div class="search-result-container">
-            @foreach(SearchResult result in userSearchInput.Results)
-            {
-                <div class="search-result">
-                    <div class="search-result-title">@(result.Issue.Key) : @(result.Issue.Summary)</div>
-                    <div class="search-result-meta-container row">
-                        <div class="col">
-                            <div class="search-result-meta"><b>Created:</b> @(result.Issue.Created)</div>
-                            <div class="search-result-meta"><b>Updated:</b> @(result.Issue.Updated)</div>
-                            <div class="search-result-meta"><b>Resolved:</b> @(result.Issue.Resolved)</div>
+        <div><span class="oi oi-pulse"></span> SEARCHING...</div>
+    } else {
+        @if(showResultCount)
+        {
+            <i>Found: @(userSearchInput.Results.Count)</i>
+        }
+        @if(userSearchInput.Results.Count > 0)
+        {
+            <br/>
+            <div class="search-result-container">
+                @foreach(SearchResult result in userSearchInput.Results)
+                {
+                    <div class="search-result">
+                        <div class="search-result-title">@(result.Issue.Key) : @(result.Issue.Summary)</div>
+                        <div class="search-result-meta-container row">
+                            <div class="col">
+                                <div class="search-result-meta"><b>Created:</b> @(result.Issue.Created)</div>
+                                <div class="search-result-meta"><b>Updated:</b> @(result.Issue.Updated)</div>
+                                <div class="search-result-meta"><b>Resolved:</b> @(result.Issue.Resolved)</div>
+                            </div>
+                            <div class="col">
+                                <div class="search-result-meta"><b>Reporter:</b> @(result.Issue.Reporter)</div>
+                                <div class="search-result-meta"><b>Assignee:</b> @(result.Issue.Assignee)</div>
+                            </div>
+                            <div class="col">
+                                <div class="search-result-meta"><b>Search score:</b> @(result.Score)</div>
+                            </div>
                         </div>
-                        <div class="col">
-                            <div class="search-result-meta"><b>Reporter:</b> @(result.Issue.Reporter)</div>
-                            <div class="search-result-meta"><b>Assignee:</b> @(result.Issue.Assignee)</div>
+
+                        <div class="search-result-issue-body">
+                            @(result.Issue.Description)
                         </div>
-                        <div class="col">
-                            <div class="search-result-meta"><b>Search score:</b> @(result.Score)</div>
-                        </div>
-                    </div>
 
-                    <div class="search-result-issue-body">
-                        @(result.Issue.Description)
-                    </div>
+                        @if (result.Issue.Comments.Count > 0)
+                        {
+                            <div class="search-result-comment-title">Comments: @(result.Issue.Comments.Count)</div>
 
-                    @if (result.Issue.Comments.Count > 0)
-                    {
-                        <div class="search-result-comment-title">Comments: @(result.Issue.Comments.Count)</div>
-
-                        <div class="search-result-comment-container">
-                            @foreach(JiraIssueComment comment in result.Issue.Comments)
-                            {
-                                <div class="search-result-comment">
-                                    <div class="search-result-author">
-                                        @comment.Author<br/>@comment.Created
+                            <div class="search-result-comment-container">
+                                @foreach(JiraIssueComment comment in result.Issue.Comments)
+                                {
+                                    <div class="search-result-comment">
+                                        <div class="search-result-author">
+                                            @comment.Author<br/>@comment.Created
+                                        </div>
+                                        <div class="search-result-content">@comment.Content</div>
                                     </div>
-                                    <div class="search-result-content">@comment.Content</div>
-                                </div>
-                            }
-                        </div>
-                    }
-                </div>
-            }
-        </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
     }
+
+
 </div>
 
     </Authorized>
