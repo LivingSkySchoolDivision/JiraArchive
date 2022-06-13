@@ -1,3 +1,104 @@
 ﻿@page "/"
 
-<h1>Issues</h1>
+@code {
+    [Inject]
+    IConfiguration Configuration { get; set; }
+
+
+    [Inject]
+    JiraIssueSearcher _searcher { get; set; }
+
+    private SearchInput userSearchInput = new SearchInput();
+    private bool showLoading = false;
+
+    protected void doSearch()
+    {
+        userSearchInput.Results = _searcher.Find(userSearchInput.RawSearchTerms);
+    }
+}
+<style type="text/css">
+    body, html {  }
+    .search-result { padding: 10px; border-radius: 5px; margin: 10px; margin-bottom: 25px; border-top: 2px dashed #C0C0C0; }
+    .search-result-container { padding: 10px;  }
+    .search-result-issue-body { font-size: 12px; margin: 15px; white-space: pre-wrap; padding: 10px; border-left: 1px solid #C0C0C0; }
+    .search-result-title { font-weight: bold; font-size: 110%; }
+    .search-result-meta-container { font-size: 65%; margin-left: 5px; }
+    .search-result-comment-title { font-size: 75%; font-weight: bold; margin-left: 10px; border-bottom: 1px dashed #C0C0C0; margin-bottom: 5px;  }
+    .search-result-comment { margin-left: 15px;   padding: 8px; font-size: 65%; margin-bottom: 10px; background-color: #F0F0F0;  border-left: 2px solid #C0C0C0; }
+    .search-result-author { font-weight: bold; }
+    .search-result-comment-container {  max- }
+    .search-result-content { white-space: pre-wrap; }
+</style>
+
+<h1>Jira Issue Archive</h1>
+<p style="font-size: 75%;">
+    For best results:
+    <ul style="font-size: 75%;">
+        <li>Separate search terms with spaces, commas, or semicolens.</li>
+        <li>Upper or lower case do not matter.</li>
+        <li>Have some patience while the system searches. There is a lot of text to search, and results may take a minute or two to show up.</li>
+        <li>Use CTRL+F in your browser to search within your search results.</li>
+    </ul>
+
+</p>
+<br/>
+<h2>Search</h2>
+<div style="position: absolute; width: 90%; overflow: scroll; margin-left: auto; margin-right: auto;">
+    <EditForm Model="@userSearchInput" OnSubmit="@doSearch">
+        <InputText id="resourceName" class="form-control col-sm-8" @bind-Value="@userSearchInput.RawSearchTerms"></InputText>
+    </EditForm>
+
+    @if(showLoading){<div>LOADING...</div>}
+
+    @if(userSearchInput.Results.Count > 0)
+    {
+        <br/>
+        <hr noshade>
+        <br/>
+        <i>Found: @(userSearchInput.Results.Count)</i>
+        <br/>
+        <div class="search-result-container">
+            @foreach(SearchResult result in userSearchInput.Results)
+            {
+                <div class="search-result">
+                    <div class="search-result-title">@(result.Issue.Key) : @(result.Issue.Summary)</div>
+                    <div class="search-result-meta-container row">
+                        <div class="col">
+                            <div class="search-result-meta"><b>Created:</b> @(result.Issue.Created)</div>
+                            <div class="search-result-meta"><b>Updated:</b> @(result.Issue.Updated)</div>
+                            <div class="search-result-meta"><b>Resolved:</b> @(result.Issue.Resolved)</div>
+                        </div>
+                        <div class="col">
+                            <div class="search-result-meta"><b>Reporter:</b> @(result.Issue.Reporter)</div>
+                            <div class="search-result-meta"><b>Assignee:</b> @(result.Issue.Assignee)</div>
+                        </div>
+                        <div class="col">
+                            <div class="search-result-meta"><b>Search score:</b> @(result.Score)</div>
+                        </div>
+                    </div>
+
+                    <div class="search-result-issue-body">
+                        @(result.Issue.Description)
+                    </div>
+
+                    @if (result.Issue.Comments.Count > 0)
+                    {
+                        <div class="search-result-comment-title">Comments: @(result.Issue.Comments.Count)</div>
+
+                        <div class="search-result-comment-container">
+                            @foreach(JiraIssueComment comment in result.Issue.Comments)
+                            {
+                                <div class="search-result-comment">
+                                    <div class="search-result-author">
+                                        @comment.Author<br/>@comment.Created
+                                    </div>
+                                    <div class="search-result-content">@comment.Content</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
